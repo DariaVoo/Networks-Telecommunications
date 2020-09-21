@@ -14,15 +14,30 @@ class Client:
 
     def load(self, file_name: str):  # загрузить на сервак
         f = open(file_name, 'rb')
-        self.socket.send((0).to_bytes(1, 'big'))
+        self.socket.send((0).to_bytes(2, 'big'))
         self.socket.send(f.read())
 
     def save(self, file_name: str):  # скачать с сервака
-        self.socket.send((1).to_bytes(1, 'big'))
+        self.socket.send((1).to_bytes(2, 'big'))
         self.socket.send(file_name.encode('utf-8'))
-        data = self.socket.recv(self.BUFFER_SIZE)
+        data = self.get_data()
         load_file(self.DIR_FILES + "me", data.decode('utf-8'))
         print("File was downloaded")
+
+    def get_data(self):
+        data = self.socket.recv(self.BUFFER_SIZE)
+        tmp = 0
+        while tmp:  # Могут быть большие файлы
+            data += tmp
+            tmp = self.socket.recv(self.BUFFER_SIZE)
+        return data
+
+    def get_name_files(self):
+        self.socket.send((2).to_bytes(2, 'big'))
+        data = self.get_data().decode('utf-8')
+        data = data.split()
+        print(data)
+        return data
 
     def close(self):
         self.socket.close()
