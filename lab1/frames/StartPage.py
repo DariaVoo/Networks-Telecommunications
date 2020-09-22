@@ -1,7 +1,7 @@
 import re
 from tkinter import Frame, Menu, Label, Entry, Button
 
-from frames.PageOne import browse_files, PageOne
+from frames.PageOne import PageOne
 from utils.ft_error import ft_error
 
 TCP_IP: str = '127.0.0.1'
@@ -26,14 +26,6 @@ def get_params(e1, e2, master):
 class StartPage(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
-        # adding menu bar in master window
-        menu = Menu(self)
-        item = Menu(menu)
-        item.add_command(label='Upload', command=browse_files)
-        item.add_command(label='Save as', command=browse_files)
-        menu.add_cascade(label='File', menu=item)
-        master.config(menu=menu)
-
         Label(self, text="IP").grid(row=0)
         Label(self, text="Port").grid(row=1)
 

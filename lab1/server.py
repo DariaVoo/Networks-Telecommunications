@@ -1,3 +1,4 @@
+import os
 import socket
 from file_op import load_file
 
@@ -7,7 +8,7 @@ class Server:
         self.port = port
         self.ip = ip
         self.DIR_FILES = 'server_files/'
-        self.files = ["aaa"]
+        self.files = os.listdir(self.DIR_FILES)
         self.BUFFER_SIZE = 20  # Normally 1024, but we want fast response
         self.conn, self.addr_conn = 0, 0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,15 +25,20 @@ class Server:
         print('Connection address:', self.addr_conn)
 
     def listen(self):
-        while True:
-            mode = self.conn.recv(2)
-            mode = int.from_bytes(mode, 'big')
-            if mode == 0:  # load
-                self.load()
-            elif mode == 1:  # download
-                self.download()
-            elif mode == 2:  # get_files
-                self.get_all_files()
+        try:
+            while True:
+                mode = self.conn.recv(2)
+                mode = int.from_bytes(mode, 'big')
+                if mode == 0:  # load
+                    self.load()
+                elif mode == 1:  # download
+                    self.download()
+                elif mode == 2:  # get_files
+                    self.get_all_files()
+                elif mode == 3:  # close
+                    self.close()
+        finally:
+            return
 
     def get_data(self):
         data = self.conn.recv(self.BUFFER_SIZE)
@@ -52,7 +58,7 @@ class Server:
         print(temp_byte_array)
         file_name = temp_byte_array[:-1].decode('utf-8')
         print('Server: File name recieved', file_name)
-        return file_name
+        return file_name.split(sep='/')[-1]
 
     def load(self):  # Загрузить файл на сервак
         newfile = self.DIR_FILES + self.get_file_name()
@@ -82,6 +88,7 @@ class Server:
 
     def close(self):
         self.conn.close()
+        print("Active connection closed")
 
 
 # def server(tcp_ip, tcp_port):
@@ -92,8 +99,6 @@ if __name__ == "__main__":
         serv = Server(tcp_ip, tcp_port)
         serv.serve()
 
-        while True:
-            serv.listen()
     finally:
         print("NOOOOOoo")
         serv.close()

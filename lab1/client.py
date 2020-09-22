@@ -1,4 +1,6 @@
 import socket
+from tkinter.ttk import Progressbar
+
 from server import load_file
 
 
@@ -8,11 +10,16 @@ class Client:
         self.TCP_IP = ip
         self.BUFFER_SIZE = 1024
         self.DIR_FILES = 'client/'
-
+        self.active = False
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connect()
+
+    def connect(self):
         self.socket.connect((self.TCP_IP, self.TCP_PORT))
+        self.active = True
 
     def load(self, file_name: str):  # загрузить на сервак
+        """ Загрузка данных на сервер """
         self.socket.send((0).to_bytes(2, 'big'))
         print("want to load", file_name)
         self.socket.send((file_name + '\0').encode('utf-8'))
@@ -20,10 +27,11 @@ class Client:
         self.socket.send(f.read())
 
     def save(self, file_name: str):  # скачать с сервака
+        """ Скачивание данных с сервера """
         self.socket.send((1).to_bytes(2, 'big'))
         self.socket.send(file_name.encode('utf-8'))
         data = self.get_data()
-        load_file(self.DIR_FILES + "me", data.decode('utf-8'))
+        load_file(self.DIR_FILES + file_name, data.decode('utf-8'))
         print("File was downloaded")
 
     def get_data(self):
@@ -38,11 +46,14 @@ class Client:
         self.socket.send((2).to_bytes(2, 'big'))
         data = self.get_data().decode('utf-8')
         data = data.split()
-        print(data)
+        print("Files at server: ", data)
         return data
 
     def close(self):
+        self.socket.send((3).to_bytes(2, 'big'))
         self.socket.close()
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.active = False
 
 
 def client(tcp_ip, tcp_port, mode: str, file_name: str):
