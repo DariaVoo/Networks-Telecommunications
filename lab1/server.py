@@ -1,6 +1,7 @@
 import os
 import socket
 from file_op import load_file
+from utils.ft_done import ft_done
 
 
 class Server:
@@ -67,6 +68,8 @@ class Server:
         self.files.append(newfile)
         load_file(newfile, data.decode('utf-8'))
         print("File was load to server")
+        # нужно отобразить на экране
+
 
     def download(self):  # Скачать файл с сервака
         data = self.get_data()

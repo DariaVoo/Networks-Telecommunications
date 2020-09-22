@@ -3,12 +3,8 @@ from tkinter import filedialog, Frame, Label, Button, Menu, HORIZONTAL
 from tkinter.ttk import Progressbar
 
 from client import Client
+from utils.ft_done import ft_done
 from utils.ft_error import ft_error
-
-
-def progress(currentValue, progressbar):
-    """ Function updating the progressbar """
-    progressbar["value"] = currentValue
 
 
 class PageOne(Frame):
@@ -55,6 +51,9 @@ class PageOne(Frame):
                                                            "*.*")))
         if file_name != '':
             self.client.load(file_name)
+            file_name = file_name.split(sep='/')[-1]
+            ft_done("File " + file_name + " was load to server")
+            self.add_file_to_root(file_name)
 
     def run_bar(self, progressbar: Progressbar):
         currentValue = 0
@@ -72,24 +71,29 @@ class PageOne(Frame):
         progressbar.start(interval=50)
 
         # self.run_bar(progressbar)
-        self.client.save(file_name)
+        path = filedialog.askdirectory(initialdir="/home/snorcros", title="Select a dir for download", mustexist=1)
+        self.client.save(file_name, path)
+
         progressbar.stop()
 
     def add_file_rows_to_root(self, file_names: list):
         for file_name in file_names:
-            file_name_label = Label(self, text=file_name)
-            file_download_button = Button(self, text='Download')
-            save_callback_with_name = functools.partial(self.save, file_name, self.current_row)
-            file_download_button.bind('<Button-1>', save_callback_with_name)
+            self.add_file_to_root(file_name)
 
-            self.file_widgets.append(file_download_button)
+    def add_file_to_root(self, file_name: list):
+        file_name_label = Label(self, text=file_name)
+        file_download_button = Button(self, text='Download')
+        save_callback_with_name = functools.partial(self.save, file_name, self.current_row)
+        file_download_button.bind('<Button-1>', save_callback_with_name)
 
-            # bind with partial
-            file_name_label.grid(row=self.current_row, column=1)
-            file_download_button.grid(row=self.current_row, column=2)
-            self.file_widgets.append(file_name_label)
+        self.file_widgets.append(file_download_button)
 
-            self.current_row += 1
+        # bind with partial
+        file_name_label.grid(row=self.current_row, column=1)
+        file_download_button.grid(row=self.current_row, column=2)
+        self.file_widgets.append(file_name_label)
+
+        self.current_row += 1
 
     def remove_file_rows_from_root(self):
         for widget in self.file_widgets:

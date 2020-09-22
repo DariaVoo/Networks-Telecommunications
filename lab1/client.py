@@ -2,6 +2,7 @@ import socket
 from tkinter.ttk import Progressbar
 
 from server import load_file
+from utils.ft_done import ft_done
 
 
 class Client:
@@ -26,7 +27,7 @@ class Client:
         f = open(file_name, 'rb')
         self.socket.send(f.read())
 
-    def save(self, file_name: str):  # скачать с сервака
+    def save(self, file_name: str, path: str):  # скачать с сервака
         """ Скачивание данных с сервера """
         self.socket.send((1).to_bytes(2, 'big'))
         self.socket.send(file_name.encode('utf-8'))
