@@ -32,8 +32,8 @@ class Client:
         self.socket.send((1).to_bytes(2, 'big'))
         self.socket.send(file_name.encode('utf-8'))
         data = self.get_data()
-        load_file(self.DIR_FILES + file_name, data.decode('utf-8'))
-        print("File was downloaded")
+        load_file(path + '/' + file_name, data.decode('utf-8'))
+        print("File was downloaded to ", path)
 
     def get_data(self):
         data = self.socket.recv(self.BUFFER_SIZE)

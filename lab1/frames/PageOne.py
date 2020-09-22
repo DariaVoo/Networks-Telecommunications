@@ -22,7 +22,7 @@ class PageOne(Frame):
 
         from frames.StartPage import TCP_IP
         from frames.StartPage import TCP_PORT
-        info = "IP" + str(TCP_IP) + "\tPORT:" + str(TCP_PORT)
+        info = "IP: " + str(TCP_IP) + "\tPORT: " + str(TCP_PORT)
         Label(self, text=info).grid(row=1, column=1)
         Button(self, text="Disconnect",
                command=self.disconnect).grid(row=1, column=2)
@@ -73,6 +73,7 @@ class PageOne(Frame):
         # self.run_bar(progressbar)
         path = filedialog.askdirectory(initialdir="/home/snorcros", title="Select a dir for download", mustexist=1)
         self.client.save(file_name, path)
+        ft_done("File " + file_name + " was download to " + path)
 
         progressbar.stop()
 
