@@ -13,8 +13,10 @@ class Client:
         self.socket.connect((self.TCP_IP, self.TCP_PORT))
 
     def load(self, file_name: str):  # загрузить на сервак
-        f = open(file_name, 'rb')
         self.socket.send((0).to_bytes(2, 'big'))
+        print("want to load", file_name)
+        self.socket.send((file_name + '\0').encode('utf-8'))
+        f = open(file_name, 'rb')
         self.socket.send(f.read())
 
     def save(self, file_name: str):  # скачать с сервака
@@ -44,6 +46,7 @@ class Client:
 
 
 def client(tcp_ip, tcp_port, mode: str, file_name: str):
+    print("hi")
     cli = Client(tcp_ip, tcp_port)
     if mode == "load":
         cli.load(file_name)

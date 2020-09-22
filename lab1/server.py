@@ -11,6 +11,7 @@ class Server:
         self.BUFFER_SIZE = 20  # Normally 1024, but we want fast response
         self.conn, self.addr_conn = 0, 0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.run()
 
     def run(self):
         self.socket.setblocking(1)
@@ -18,6 +19,7 @@ class Server:
         self.socket.listen(1)
         print("Server listen port ", self.port)
 
+    def accept(self):
         self.conn, self.addr_conn = self.socket.accept()
         print('Connection address:', self.addr_conn)
 
@@ -40,9 +42,22 @@ class Server:
             tmp = self.conn.recv(self.BUFFER_SIZE)
         return data
 
+    def get_file_name(self):
+        temp_byte_array = bytes()
+        while True:
+            if temp_byte_array.endswith(b'\0'):
+                break
+            data = self.conn.recv(1)
+            temp_byte_array += data
+        print(temp_byte_array)
+        file_name = temp_byte_array[:-1].decode('utf-8')
+        print('Server: File name recieved', file_name)
+        return file_name
+
     def load(self):  # Загрузить файл на сервак
+        newfile = self.DIR_FILES + self.get_file_name()
+        print("File will be load to", newfile)
         data = self.get_data()
-        newfile = self.DIR_FILES + "1"
         self.files.append(newfile)
         load_file(newfile, data.decode('utf-8'))
         print("File was load to server")
@@ -60,6 +75,11 @@ class Server:
         # print(type(f.encode('utf-8')))
         self.conn.send(fb)
 
+    def serve(self):
+        while True:
+            self.accept()
+            self.listen()
+
     def close(self):
         self.conn.close()
 
@@ -68,9 +88,9 @@ class Server:
 if __name__ == "__main__":
     try:
         tcp_ip: str = '127.0.0.1'
-        tcp_port: int = 5064
+        tcp_port: int = 5060
         serv = Server(tcp_ip, tcp_port)
-        serv.run()
+        serv.serve()
 
         while True:
             serv.listen()
