@@ -1,5 +1,5 @@
 import functools
-from tkinter import filedialog, Frame, Label, Button, Menu, HORIZONTAL
+from tkinter import filedialog, Frame, Label, Button, Menu
 from tkinter.ttk import Progressbar
 
 from client import Client
@@ -44,6 +44,7 @@ class PageOne(Frame):
         self.master.switch_frame(StartPage)
 
     def load_to_serv(self):
+        """ Загрузить что-то на сервер """
         file_name = filedialog.askopenfilename(initialdir="/home/snorcros", title="Select a File",
                                                filetypes=(("Text files",
                                                            "*.txt*"),
@@ -65,6 +66,7 @@ class PageOne(Frame):
             progressbar.step()
 
     def save(self, file_name, row, event):
+        """ Скачать что-то с сервера """
         progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
         progressbar.grid(row=row, column=4)
         progressbar.config(maximum=100, value=0)

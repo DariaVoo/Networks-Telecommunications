@@ -1,16 +1,30 @@
+import asyncio
+import threading
+
 from frames.TCPApp import TCPApp
-from client import client, Client
-from threading import Thread
-from tkinter import *
-from tkinter import messagebox
-from tkinter import filedialog
 
 
-if __name__ == "__main__":
-    # print(TCP_IP, TCP_PORT)
+# todo multitreahing
+
+def _asyncio_thread(async_loop):
+    async_loop.run_until_complete(save / download)
+
+
+def do_tasks(async_loop):
+    """ Button-Event-Handler starting the asyncio part. """
+    threading.Thread(target=_asyncio_thread, args=(async_loop,)).start()
+
+
+def main(ascync_loop):
     app = TCPApp()
     app.mainloop()
 
+
+if __name__ == "__main__":
+    async_loop = asyncio.get_event_loop()
+    main(async_loop)
+
+    # print(TCP_IP, TCP_PORT)
     # tcp_ip: str = '127.0.0.1'
     # tcp_port: int = 5060
     # # thread1 = Thread(target=server, args=(TCP_IP, TCP_PORT))
