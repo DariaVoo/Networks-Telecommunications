@@ -7,7 +7,8 @@ from frames.TCPApp import TCPApp
 # todo multitreahing
 
 def _asyncio_thread(async_loop):
-    async_loop.run_until_complete(save / download)
+    pass
+    # async_loop.run_until_complete(save / download)
 
 
 def do_tasks(async_loop):
@@ -21,8 +22,11 @@ def main(ascync_loop):
 
 
 if __name__ == "__main__":
-    async_loop = asyncio.get_event_loop()
-    main(async_loop)
+    # async_loop = asyncio.get_event_loop()
+    # main(async_loop)
+
+    app = TCPApp()
+    app.mainloop()
 
     # print(TCP_IP, TCP_PORT)
     # tcp_ip: str = '127.0.0.1'

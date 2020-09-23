@@ -17,6 +17,8 @@ def get_params(e1, e2, master):
         TCP_PORT = int(e2.get())
         print(TCP_IP, TCP_PORT)
         master.switch_frame(PageOne)
+    except ConnectionRefusedError:
+        ft_error("Server is not available :c")
     except ValueError:
         ft_error("Invalid port! Port must be a number!")
     except Exception as e:

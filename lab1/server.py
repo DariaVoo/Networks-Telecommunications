@@ -61,7 +61,8 @@ class Server:
         print('Server: File name recieved', file_name)
         return file_name.split(sep='/')[-1]
 
-    def load(self):  # Загрузить файл на сервак
+    def load(self):
+        """ Загрузить файл на сервер """
         newfile = self.DIR_FILES + self.get_file_name()
         print("File will be load to", newfile)
         data = self.get_data()
@@ -70,8 +71,8 @@ class Server:
         print("File was load to server")
         # нужно отобразить на экране
 
-
-    def download(self):  # Скачать файл с сервака
+    def download(self):
+        """ Скачать файл с сервера """
         data = self.get_data()
         f = open(self.DIR_FILES + data.decode('utf-8'), 'rb')
         self.conn.send(f.read())
@@ -105,7 +106,6 @@ if __name__ == "__main__":
     finally:
         print("NOOOOOoo")
         serv.close()
-
 
 # def server(TCP_IP, TCP_PORT):
 #     DIR_FILES = 'server_files/'
