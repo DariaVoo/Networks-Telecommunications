@@ -144,6 +144,6 @@ class PageOne(Frame):
     def on_closing(self):
         """" При закрытии приложения отключаемся от сервера """
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            if self.client.active:
+            if self.client and self.client.active:
                 self.client.close()
             self.master.destroy()
