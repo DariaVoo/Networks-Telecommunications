@@ -25,7 +25,7 @@ class Client:
         print("want to load", file_name)
         self.socket.send(str(len(file_name)).encode('utf-8'))
         self.socket.send('\0'.encode('utf-8'))
-        self.socket.send((file_name + '\0').encode('utf-8'))
+        self.socket.send(file_name.encode('utf-8'))
 
         f = open(file_name, 'rb')
         data = f.read()

@@ -43,23 +43,25 @@ class Server:
     def get_len(self):
         data: str = ''
         tmp: str = ''
+
+        print("In len")
         while True:
             tmp = self.conn.recv(1).decode('utf-8')
+            print(tmp, sep=' ')
             if tmp == '\0':
                 return int(data)
             data += tmp
+        print("End len")
         return int(data)
 
     def get_data(self):
         len_data: int = self.get_len()
+        print("Ok len", len_data)
         data = self.conn.recv(len_data)
         return data
 
     def get_file_name(self):
-        file_name = self.get_data()
-        temp_byte_array = self.get_data()
-        print(temp_byte_array)
-        file_name = self.get_data()[:-1].decode('utf-8')
+        file_name = self.get_data().decode('utf-8')
         print('Server: File name recieved', file_name)
         return file_name.split(sep='/')[-1]
 
@@ -67,10 +69,12 @@ class Server:
         """ Загрузить файл на сервер """
         newfile = self.DIR_FILES + self.get_file_name()
         print("File will be load to", newfile)
+
         data = self.get_data()
-        self.files.append(newfile)
+        print("OK data")
         load_file(newfile, data.decode('utf-8'))
         print("File was load to server")
+        self.files.append(newfile)
         # нужно отобразить на экране
 
     def download(self):
