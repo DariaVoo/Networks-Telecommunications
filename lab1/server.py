@@ -54,7 +54,6 @@ class Server:
 
     def get_data(self):
         len_data: int = self.get_len()
-        print("Ok len", len_data)
         data = self.conn.recv(len_data)
         return data
 
@@ -70,7 +69,7 @@ class Server:
 
         data = self.get_data()
         print("OK data")
-        load_file(newfile, data.decode('utf-8'))
+        load_file(newfile, data)
         print("File was load to server")
         self.files.append(newfile)
         # нужно отобразить на экране

@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import threading
 from tkinter import filedialog, Frame, Label, Button, Menu, messagebox
 from tkinter.ttk import Progressbar
 
@@ -74,9 +75,11 @@ class PageOne(Frame):
                 progressbar.config(maximum=100, value=0)
                 progressbar.start(interval=50)
 
-                # async
-                # do_tasks(self.async_loop, self.l, file_name)
-                self.client.load(file_name)
+                load_thread = threading.Thread(target=self.client.load, args=(file_name,))
+                load_thread.start()
+                # self.client.load(file_name)
+                while load_thread.is_alive():
+                    progressbar.step()
 
                 file_name = file_name.split(sep='/')[-1]
                 progressbar.stop()
