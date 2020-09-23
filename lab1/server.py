@@ -1,7 +1,6 @@
 import os
 import socket
 from file_op import load_file
-from utils.ft_done import ft_done
 
 
 class Server:
@@ -10,7 +9,7 @@ class Server:
         self.ip = ip
         self.DIR_FILES = 'server_files/'
         self.files = os.listdir(self.DIR_FILES)
-        self.BUFFER_SIZE = 20  # Normally 1024, but we want fast response
+        self.BUFFER_SIZE = 30  # Normally 1024, but we want fast response
         self.conn, self.addr_conn = 0, 0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.run()
@@ -41,23 +40,26 @@ class Server:
         finally:
             return
 
-    def get_data(self):
-        data = self.conn.recv(self.BUFFER_SIZE)
-        tmp = 0
-        while tmp:  # Могут быть большие файлы
+    def get_len(self):
+        data: str = ''
+        tmp: str = ''
+        while True:
+            tmp = self.conn.recv(1).decode('utf-8')
+            if tmp == '\0':
+                return int(data)
             data += tmp
-            tmp = self.conn.recv(self.BUFFER_SIZE)
+        return int(data)
+
+    def get_data(self):
+        len_data: int = self.get_len()
+        data = self.conn.recv(len_data)
         return data
 
     def get_file_name(self):
-        temp_byte_array = bytes()
-        while True:
-            if temp_byte_array.endswith(b'\0'):
-                break
-            data = self.conn.recv(1)
-            temp_byte_array += data
+        file_name = self.get_data()
+        temp_byte_array = self.get_data()
         print(temp_byte_array)
-        file_name = temp_byte_array[:-1].decode('utf-8')
+        file_name = self.get_data()[:-1].decode('utf-8')
         print('Server: File name recieved', file_name)
         return file_name.split(sep='/')[-1]
 
@@ -73,16 +75,24 @@ class Server:
 
     def download(self):
         """ Скачать файл с сервера """
+        print("WANT")
         data = self.get_data()
-        f = open(self.DIR_FILES + data.decode('utf-8'), 'rb')
-        self.conn.send(f.read())
+        filename = self.DIR_FILES + data.decode('utf-8')
+
+        print("Want to Download", filename)
+        f = open(filename, 'rb')
+        data = f.read()
+        self.conn.send(str(len(data)).encode('utf-8'))
+        self.conn.send('\0'.encode('utf-8'))
+        self.conn.send(data)
+        print("Download", filename, " done")
 
     def get_all_files(self):
+        """ Получить список файлов на сервере"""
         f: str = ' '.join(self.files)
-        print(type(f), f)
         fb: bytes = f.encode('utf-8')
-        print(type(fb), f)
-        # print(type(f.encode('utf-8')))
+        self.conn.send(str(len(fb)).encode('utf-8'))
+        self.conn.send('\0'.encode('utf-8'))
         self.conn.send(fb)
 
     def serve(self):

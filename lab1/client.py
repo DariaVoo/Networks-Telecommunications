@@ -23,24 +23,41 @@ class Client:
         """ Загрузка данных на сервер """
         self.socket.send((0).to_bytes(2, 'big'))
         print("want to load", file_name)
+        self.socket.send(str(len(file_name)).encode('utf-8'))
+        self.socket.send('\0'.encode('utf-8'))
         self.socket.send((file_name + '\0').encode('utf-8'))
+
         f = open(file_name, 'rb')
-        self.socket.send(f.read())
+        data = f.read()
+        self.socket.send(str(len(data)).encode('utf-8'))
+        self.socket.send('\0'.encode('utf-8'))
+        self.socket.send(data)
 
     def save(self, file_name: str, path: str):  # скачать с сервака
         """ Скачивание данных с сервера """
         self.socket.send((1).to_bytes(2, 'big'))
-        self.socket.send(file_name.encode('utf-8'))
+        name = file_name.encode('utf-8')
+        self.socket.send(str(len(name)).encode('utf-8'))  # send len file_name
+        self.socket.send('\0'.encode('utf-8'))
+        self.socket.send(name)
+
         data = self.get_data()
         load_file(path + '/' + file_name, data.decode('utf-8'))
         print("File was downloaded to ", path)
 
-    def get_data(self):
-        data = self.socket.recv(self.BUFFER_SIZE)
-        tmp = 0
-        while tmp:  # Могут быть большие файлы
+    def get_len(self):
+        data: str = ''
+        tmp: str = ''
+        while True:
+            tmp = self.socket.recv(1).decode('utf-8')
+            if tmp == '\0':
+                return int(data)
             data += tmp
-            tmp = self.socket.recv(self.BUFFER_SIZE)
+        return int(data)
+
+    def get_data(self):
+        len_data: int = self.get_len()
+        data = self.socket.recv(len_data)
         return data
 
     def get_name_files(self):

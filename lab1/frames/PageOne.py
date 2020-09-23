@@ -20,7 +20,6 @@ class PageOne(Frame):
         self.current_row = 3
         self.client = None
 
-        # adding menu bar in master window
         menu = Menu(self)
         menu.add_command(label='Upload to server', command=self.load_to_serv)
         self.master.config(menu=menu)
@@ -138,7 +137,7 @@ class PageOne(Frame):
         self.current_row = 3
 
     def on_closing(self):
-        """" При закрыти приложения отключаемся от сервера """
+        """" При закрытии приложения отключаемся от сервера """
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             if self.client.active:
                 self.client.close()
