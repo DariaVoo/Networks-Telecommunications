@@ -1,6 +1,8 @@
 import os
 import socket
+
 from file_op import load_file
+from utils.send_data import send_data
 
 
 class Server:
@@ -43,15 +45,11 @@ class Server:
     def get_len(self):
         data: str = ''
         tmp: str = ''
-
-        print("In len")
         while True:
             tmp = self.conn.recv(1).decode('utf-8')
-            print(tmp, sep=' ')
             if tmp == '\0':
                 return int(data)
             data += tmp
-        print("End len")
         return int(data)
 
     def get_data(self):
@@ -85,18 +83,14 @@ class Server:
         print("Want to Download", filename)
         f = open(filename, 'rb')
         data = f.read()
-        self.conn.send(str(len(data)).encode('utf-8'))
-        self.conn.send('\0'.encode('utf-8'))
-        self.conn.send(data)
+        send_data(self.conn, data)
         print("Download", filename, " done")
 
     def get_all_files(self):
         """ Получить список файлов на сервере"""
         f: str = ' '.join(self.files)
         fb: bytes = f.encode('utf-8')
-        self.conn.send(str(len(fb)).encode('utf-8'))
-        self.conn.send('\0'.encode('utf-8'))
-        self.conn.send(fb)
+        send_data(self.conn, fb)
 
     def serve(self):
         while True:

@@ -3,6 +3,7 @@ from tkinter.ttk import Progressbar
 
 from server import load_file
 from utils.ft_done import ft_done
+from utils.send_data import send_data
 
 
 class Client:
@@ -23,23 +24,16 @@ class Client:
         """ Загрузка данных на сервер """
         self.socket.send((0).to_bytes(2, 'big'))
         print("want to load", file_name)
-        self.socket.send(str(len(file_name)).encode('utf-8'))
-        self.socket.send('\0'.encode('utf-8'))
-        self.socket.send(file_name.encode('utf-8'))
+        send_data(self.socket, file_name.encode('utf-8'))
 
         f = open(file_name, 'rb')
         data = f.read()
-        self.socket.send(str(len(data)).encode('utf-8'))
-        self.socket.send('\0'.encode('utf-8'))
-        self.socket.send(data)
+        send_data(self.socket, data)
 
     def save(self, file_name: str, path: str):  # скачать с сервака
         """ Скачивание данных с сервера """
         self.socket.send((1).to_bytes(2, 'big'))
-        name = file_name.encode('utf-8')
-        self.socket.send(str(len(name)).encode('utf-8'))  # send len file_name
-        self.socket.send('\0'.encode('utf-8'))
-        self.socket.send(name)
+        send_data(self.socket, file_name.encode('utf-8'))
 
         data = self.get_data()
         load_file(path + '/' + file_name, data.decode('utf-8'))
