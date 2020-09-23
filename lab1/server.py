@@ -75,7 +75,6 @@ class Server:
 
     def download(self):
         """ Скачать файл с сервера """
-        print("WANT")
         data = self.get_data()
         filename = self.DIR_FILES + data.decode('utf-8')
 
@@ -105,7 +104,6 @@ class Server:
         print("Active connection closed")
 
 
-# def server(tcp_ip, tcp_port):
 if __name__ == "__main__":
     try:
         tcp_ip: str = '127.0.0.1'
