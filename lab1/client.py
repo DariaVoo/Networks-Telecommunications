@@ -36,7 +36,7 @@ class Client:
         send_data(self.socket, file_name.encode('utf-8'))
 
         data = self.get_data()
-        load_file(path + '/' + file_name, data.decode('utf-8'))
+        load_file(path + '/' + file_name, data)
         print("File was downloaded to ", path)
 
     def get_len(self):

@@ -1,7 +1,6 @@
 def load_file(file_name, data: bytearray):
     """ Функция загрузки данных(файла) на сервер """
     try:
-        print("Now i will load ", file_name, "write", data)
         f = open(file_name, 'wb')
         f.write(data)
         f.close()

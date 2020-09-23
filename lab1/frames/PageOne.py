@@ -1,11 +1,10 @@
-import asyncio
 import functools
 import threading
+import time
 from tkinter import filedialog, Frame, Label, Button, Menu, messagebox
 from tkinter.ttk import Progressbar
 
 from client import Client
-from main import do_tasks
 from utils.ft_done import ft_done
 from utils.ft_error import ft_error
 
@@ -57,9 +56,6 @@ class PageOne(Frame):
         from frames.StartPage import StartPage
         self.master.switch_frame(StartPage)
 
-    # async def l(self, file_name):
-    #     await asyncio.wait(self.client.load(file_name))
-
     def load_to_serv(self):
         """ Загрузить что-то на сервер """
         try:
@@ -73,13 +69,14 @@ class PageOne(Frame):
                 progressbar = Progressbar(self, orient='horizontal', length=200, mode='indeterminate')
                 progressbar.grid(row=2, column=2)
                 progressbar.config(maximum=100, value=0)
-                progressbar.start(interval=50)
 
                 load_thread = threading.Thread(target=self.client.load, args=(file_name,))
                 load_thread.start()
-                # self.client.load(file_name)
+
+                progressbar.start(interval=50)
                 while load_thread.is_alive():
-                    progressbar.step()
+                    self.master.update_idletasks()
+                    time.sleep(0.05)
 
                 file_name = file_name.split(sep='/')[-1]
                 progressbar.stop()
@@ -101,9 +98,14 @@ class PageOne(Frame):
                 progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
                 progressbar.grid(row=row, column=4)
                 progressbar.config(maximum=100, value=0)
-                progressbar.start(interval=50)
 
-                self.client.save(file_name, path)
+                save_thread = threading.Thread(target=self.client.save, args=(file_name, path))
+                save_thread.start()
+
+                progressbar.start(interval=50)
+                while save_thread.is_alive():
+                    self.master.update_idletasks()
+                    time.sleep(0.05)
 
                 progressbar.stop()
                 progressbar.destroy()
