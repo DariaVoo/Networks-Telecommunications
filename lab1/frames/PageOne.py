@@ -1,17 +1,21 @@
+import asyncio
 import functools
-from tkinter import filedialog, Frame, Label, Button, Menu
+from tkinter import filedialog, Frame, Label, Button, Menu, messagebox
 from tkinter.ttk import Progressbar
 
 from client import Client
+from main import do_tasks
 from utils.ft_done import ft_done
 from utils.ft_error import ft_error
 
 
 class PageOne(Frame):
-    def __init__(self, master):
+    def __init__(self, master, async_loop):
         Frame.__init__(self, master)
+        self.async_loop = async_loop
         Frame.configure(self)
         self.master = master
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.file_widgets = []
         self.current_row = 3
         self.client = None
@@ -53,6 +57,9 @@ class PageOne(Frame):
         from frames.StartPage import StartPage
         self.master.switch_frame(StartPage)
 
+    # async def l(self, file_name):
+    #     await asyncio.wait(self.client.load(file_name))
+
     def load_to_serv(self):
         """ Загрузить что-то на сервер """
         try:
@@ -68,7 +75,8 @@ class PageOne(Frame):
                 progressbar.config(maximum=100, value=0)
                 progressbar.start(interval=50)
 
-
+                # async
+                # do_tasks(self.async_loop, self.l, file_name)
                 self.client.load(file_name)
 
                 file_name = file_name.split(sep='/')[-1]
@@ -129,7 +137,9 @@ class PageOne(Frame):
         self.file_widgets.clear()
         self.current_row = 3
 
-    def __exit__(self, type, value, tb):
-        if tb is None:
-            if self.client.is_active():
+    def on_closing(self):
+        """" При закрыти приложения отключаемся от сервера """
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            if self.client.active:
                 self.client.close()
+            self.master.destroy()

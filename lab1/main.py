@@ -1,31 +1,21 @@
 import asyncio
 import threading
 
-from frames.TCPApp import TCPApp
+
+def _asyncio_thread(async_loop, fun, args):
+    async_loop.run_until_complete(fun(args))
 
 
-# todo multitreahing
-
-def _asyncio_thread(async_loop):
-    pass
-    # async_loop.run_until_complete(save / download)
-
-
-def do_tasks(async_loop):
+def do_tasks(async_loop, fun, args):
     """ Button-Event-Handler starting the asyncio part. """
-    threading.Thread(target=_asyncio_thread, args=(async_loop,)).start()
-
-
-def main(ascync_loop):
-    app = TCPApp()
-    app.mainloop()
+    threading.Thread(target=_asyncio_thread, args=(async_loop, fun, args)).start()
 
 
 if __name__ == "__main__":
-    # async_loop = asyncio.get_event_loop()
-    # main(async_loop)
+    async_loop = asyncio.get_event_loop()
 
-    app = TCPApp()
+    from frames.TCPApp import TCPApp
+    app = TCPApp(async_loop)
     app.mainloop()
 
     # print(TCP_IP, TCP_PORT)

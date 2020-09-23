@@ -26,8 +26,9 @@ def get_params(e1, e2, master):
 
 
 class StartPage(Frame):
-    def __init__(self, master):
+    def __init__(self, master, async_loop):
         Frame.__init__(self, master)
+        self.async_loop = async_loop
         Label(self, text="IP").grid(row=0)
         Label(self, text="Port").grid(row=1)
 
