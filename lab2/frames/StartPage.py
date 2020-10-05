@@ -5,7 +5,7 @@ from frames.PageOne import PageOne
 from utils.ft_error import ft_error
 
 ADR_SRC: str = '127.0.0.1'
-ADR_DEST: int = 5052
+ADR_DEST: str = '127.0.0.1'
 
 
 def get_params(e1, e2, master):

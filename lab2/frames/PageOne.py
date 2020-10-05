@@ -4,6 +4,7 @@ import time
 from tkinter import filedialog, Frame, Label, Button, Menu, messagebox
 from tkinter.ttk import Progressbar
 
+from do_ip_package import do_ip_package
 from utils.ft_error import ft_error
 
 
@@ -26,10 +27,10 @@ class PageOne(Frame):
         from frames.StartPage import ADR_DEST
         info = "Sender Address: " + str(ADR_SRC) + "\tDestination Address: " + str(ADR_DEST)
         Label(self, text=info).grid(row=1, column=1)
-        # Button(self, text="Disconnect",
-        #        command=self.disconnect).grid(row=1, column=2)
-        # Button(self, text="Upload to server",
-        #        command=self.load_to_serv).grid(row=2, column=1)
+
+        do_ip_callback = functools.partial(do_ip_package, "First_fil", ADR_SRC, ADR_DEST)
+        Button(self, text="Do IP Package", command=do_ip_callback).grid(row=1, column=2)
+
         try:
             a = 0
             # self.client = Client(ADR_SRC, ADR_DEST)
