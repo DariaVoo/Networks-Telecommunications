@@ -28,7 +28,7 @@ class PageOne(Frame):
         info = "Sender Address: " + str(ADR_SRC) + "\tDestination Address: " + str(ADR_DEST)
         Label(self, text=info).grid(row=1, column=1)
 
-        do_ip_callback = functools.partial(do_ip_package, "First_fil", ADR_SRC, ADR_DEST)
+        do_ip_callback = functools.partial(do_ip_package, "First_package", ADR_SRC, ADR_DEST)
         Button(self, text="Do IP Package", command=do_ip_callback).grid(row=1, column=2)
 
         try:

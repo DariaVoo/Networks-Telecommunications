@@ -1,3 +1,6 @@
+from utils.ft_done import ft_done
+
+
 def adr_to_byte(adr: str):
     src = adr.split('.')
     src_byte = int(src[0]).to_bytes(8, 'big')
@@ -29,5 +32,7 @@ def do_ip_package(file_name: str, ADR_SRC: str, ADR_DEST: str):
         f.write(dest)  # Destination Address
 
         f.close()
+        ft_done("Package was created! in first_package")
+
     except Exception as e:
         print(e)
