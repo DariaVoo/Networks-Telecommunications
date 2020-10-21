@@ -1,4 +1,5 @@
 import socket
+from ftplib import FTP
 
 from server import load_file
 from utils.send_data import send_data
