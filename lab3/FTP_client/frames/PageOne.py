@@ -33,10 +33,17 @@ class PageOne(Frame):
                command=self.load_to_serv).grid(row=2, column=1)
         try:
             self.client = Client(FTP_MIRROR)
-            self.client.connect()
+
+            self.progress_bar(self.client.connect)
+            ft_done("login is successful")
+
+            # self.progress_bar(self.client.connect)
             self.dirs = self.client.get_name_dirs()
             files = self.client.get_name_files()
+
             self.add_file_rows_to_root(files)
+
+
         except ConnectionRefusedError:
             raise ConnectionRefusedError
         except ConnectionResetError:
@@ -89,6 +96,24 @@ class PageOne(Frame):
             self.disconnect()
         except Exception as e:
             ft_error(e)
+
+    def progress_bar(self, fun):
+        """ TODO: Надо доделать"""
+        progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
+        progressbar.grid(row=2, column=2)
+        progressbar.config(maximum=100, value=0)
+
+        save_thread = threading.Thread(target=fun)
+
+        save_thread.start()
+
+        progressbar.start(interval=50)
+        while save_thread.is_alive():
+            self.master.update_idletasks()
+            time.sleep(0.05)
+
+        progressbar.stop()
+        progressbar.destroy()
 
     def save(self, file_name, row):
         """ Скачать что-то с сервера """

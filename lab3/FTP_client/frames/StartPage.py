@@ -1,5 +1,4 @@
-import re
-from tkinter import Frame, Menu, Label, Entry, Button
+from tkinter import Frame, Label, Entry, Button
 
 from FTP_client.frames.PageOne import PageOne
 from FTP_client.utils.ft_error import ft_error

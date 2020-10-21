@@ -10,7 +10,7 @@ class Client:
         self.active = False
 
     def connect(self):
-        ft_done(self.ftp.login())
+        self.ftp.login()
         self.active = True
 
     def load(self, file_name: str):  # загрузить на сервак
