@@ -20,10 +20,6 @@ class PageOne(Frame):
         self.current_row = 3
         self.client = None
 
-        menu = Menu(self)
-        menu.add_command(label='Upload to server', command=self.load_to_serv)
-        self.master.config(menu=menu)
-
         from FTP_client.frames.StartPage import FTP_MIRROR
         info = "MIRROR: " + str(FTP_MIRROR)
         Label(self, text=info).grid(row=1, column=1)
@@ -43,7 +39,6 @@ class PageOne(Frame):
 
             self.add_file_rows_to_root(files)
 
-
         except ConnectionRefusedError:
             raise ConnectionRefusedError
         except ConnectionResetError:
@@ -51,7 +46,6 @@ class PageOne(Frame):
             self.disconnect()
         except Exception as e:
             ft_error(e)
-        # finally:
 
     def disconnect(self):
         if self.client:
@@ -114,6 +108,7 @@ class PageOne(Frame):
 
         progressbar.stop()
         progressbar.destroy()
+        save_thread.join()
 
     def save(self, file_name, row):
         """ Скачать что-то с сервера """

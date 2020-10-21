@@ -7,17 +7,17 @@ ADDRESS: str = 'www.python.org'
 
 
 def get_params(e1, master):
-    # try:
-    global ADDRESS
-    ADDRESS = str(e1.get())
-    # print(ADDRESS)
-    master.switch_frame(PageOne)
-    # except ConnectionRefusedError:
-    #     ft_error("Server is not available :c")
-    # except ValueError:
-    #     ft_error("Invalid port! Port must be a number!")
-    # except Exception as e:
-    #     ft_error(e)
+    try:
+        global ADDRESS
+        ADDRESS = str(e1.get())
+        # print(ADDRESS)
+        master.switch_frame(PageOne)
+    except ConnectionRefusedError:
+        ft_error("Server is not available :c")
+    except ValueError:
+        ft_error("Invalid port! Port must be a number!")
+    except Exception as e:
+        ft_error(e)
 
 
 class StartPage(Frame):
