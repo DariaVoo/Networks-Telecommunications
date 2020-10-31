@@ -8,7 +8,7 @@ class HTTPApp(Tk):
         Tk.__init__(self)
         self.async_loop = async_loop
         self._frame = None
-        self.geometry("900x500")
+        self.geometry("600x500")
         self.title("Lab5. HTTP client")
         self.switch_frame(StartPage)
 

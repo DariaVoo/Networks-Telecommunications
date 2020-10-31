@@ -24,12 +24,11 @@ class PageOne(Frame):
 
         from HTTP_client.frames.StartPage import ADDRESS
         info = "Address " + str(ADDRESS)
-        Label(self, text=info).grid(row=1, column=1)
+        Label(self, text=info).grid(row=0)
         Button(self, text="Disconnect",
-               command=self.disconnect).grid(row=1, column=2)
+               command=self.disconnect).grid(row=1)
 
         try:
-            print(ADDRESS[:4])
             if ADDRESS[:4] != 'http':
                 r = requests.get('https://' + ADDRESS)
             else:
@@ -40,7 +39,7 @@ class PageOne(Frame):
             text = Text()
             text.insert(INSERT, self.html)
             text.configure(state='disabled')
-            text.grid(row=2, column=1)
+            text.grid(row=2)
             self.text_frame = text
 
             # print(r.text[:200])
@@ -52,7 +51,6 @@ class PageOne(Frame):
         except Exception as e:
             ft_error(e)
             print("Error ", ADDRESS)
-
 
     def disconnect(self):
         from HTTP_client.frames.StartPage import StartPage
