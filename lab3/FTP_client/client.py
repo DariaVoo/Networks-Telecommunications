@@ -1,7 +1,5 @@
 from ftplib import FTP
 
-from FTP_client.utils.ft_done import ft_done
-
 
 class Client:
     def __init__(self, mirror: str):

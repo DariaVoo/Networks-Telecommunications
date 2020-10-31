@@ -22,23 +22,26 @@ class PageOne(Frame):
 
         from FTP_client.frames.StartPage import FTP_MIRROR
         info = "MIRROR: " + str(FTP_MIRROR)
-        Label(self, text=info).grid(row=1, column=1)
-        Button(self, text="Disconnect",
+        self.info_label = Label(self, text=info).grid(row=1, column=1)
+        self.btn_disconnect = Button(self, text="Disconnect",
                command=self.disconnect).grid(row=1, column=2)
 
+        from FTP_client.frames.StartPage import FTP_MIRROR
+        self.client = Client(FTP_MIRROR)
+
+        t1 = threading.Thread(target=self.client.connect)
+        t1.start()
+        t_progr = threading.Thread(target=self.progress, args=(3, t1)).start()
+        ft_done("login is successful")
+
+        t2 = threading.Thread(target=self.connect)
+        t2.start()
+        t_progr = threading.Thread(target=self.progress, args=(1, t2)).start()
+
+    def connect(self):
         try:
-            self.client = Client(FTP_MIRROR)
-
-            self.progress_bar(self.client.connect)
-            ft_done("login is successful")
-
-            Button(self, text="Upload to server",
-                   command=self.load_to_serv).grid(row=2, column=1)
-
-            # self.progress_bar(self.client.connect)
             self.dirs = self.client.get_name_dirs()
             files = self.client.get_name_files()
-
             self.add_file_rows_to_root(files)
 
         except ConnectionRefusedError:
@@ -60,77 +63,15 @@ class PageOne(Frame):
         from FTP_client.frames.StartPage import StartPage
         self.master.switch_frame(StartPage)
 
-    def load_to_serv(self):
-        """ Загрузить что-то на сервер """
-        try:
-            file_name: str = filedialog.askopenfilename(initialdir="/home/snorcros", title="Select a File",
-                                                   filetypes=(("Text files",
-                                                               "*.txt*"),
-                                                              ("all files",
-                                                               "*.*")))
-            if file_name:
-                print(file_name)
-                progressbar = Progressbar(self, orient='horizontal', length=200, mode='indeterminate')
-                progressbar.grid(row=2, column=2)
-                progressbar.config(maximum=100, value=0)
-
-                load_thread = threading.Thread(target=self.client.load, args=(file_name,))
-                load_thread.start()
-
-                progressbar.start(interval=50)
-                while load_thread.is_alive():
-                    self.master.update_idletasks()
-                    time.sleep(0.05)
-
-                file_name = file_name.split(sep='/')[-1]
-                progressbar.stop()
-                progressbar.destroy()
-                ft_done("File " + file_name + " was load to server")
-                self.add_file_to_root(file_name)
-        except ConnectionResetError:
-            ft_error("Server died :c")
-            self.disconnect()
-        except Exception as e:
-            ft_error(e)
-
-    def progress_bar(self, fun):
-        progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
-        progressbar.grid(row=2, column=2)
-        progressbar.config(maximum=100, value=0)
-
-        save_thread = threading.Thread(target=fun)
-
-        save_thread.start()
-
-        progressbar.start(interval=50)
-        while save_thread.is_alive():
-            self.master.update_idletasks()
-            time.sleep(0.05)
-
-        progressbar.stop()
-        progressbar.destroy()
-        save_thread.join()
-
     def save(self, file_name, row):
         """ Скачать что-то с сервера """
         try:
             path: str = filedialog.askdirectory(initialdir="/home/snorcros", title="Select a dir for download", mustexist=1)
 
             if path:
-                progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
-                progressbar.grid(row=row, column=4)
-                progressbar.config(maximum=100, value=0)
-
-                save_thread = threading.Thread(target=self.client.save, args=(file_name, path))
-                save_thread.start()
-
-                progressbar.start(interval=50)
-                while save_thread.is_alive():
-                    self.master.update_idletasks()
-                    time.sleep(0.05)
-
-                progressbar.stop()
-                progressbar.destroy()
+                t1 = threading.Thread(target=self.client.save, args=(file_name, path))
+                t1.start()
+                t_progr = threading.Thread(target=self.progress, args=(row, t1)).start()
                 ft_done("File " + file_name + " was download to " + path)
         except ConnectionResetError:
             ft_error("Server died :c")
@@ -138,14 +79,33 @@ class PageOne(Frame):
         except Exception as e:
             ft_error(e)
 
-    def explore_dir(self, dir_name):
+    def progress(self, row, thread):
+        progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
+        progressbar.grid(row=row, column=4)
+        progressbar.config(maximum=100, value=0)
+
+        progressbar.start()
+        while thread.is_alive():
+            self.master.update_idletasks()
+            time.sleep(0.05)
+        progressbar.stop()
+        progressbar.destroy()
+
+    def explore(self, dir_name):
+        self.dirs = self.client.get_name_dirs(dir_name=dir_name)
+        files = self.client.get_name_files()
+
+        self.remove_file_rows_from_root()
+        self.add_file_rows_to_root(files)
+        Button(self, text="Back",
+               command=lambda: self.explore_dir('../', 2)).grid(row=2, column=3)
+
+    def explore_dir(self, dir_name, current_row):
         try:
-            self.remove_file_rows_from_root()
-            self.dirs = self.client.get_name_dirs(dir_name=dir_name)
-            files = self.client.get_name_files()
-            self.add_file_rows_to_root(files)
-            Button(self, text="Back",
-                   command=lambda: self.explore_dir('../')).grid(row=2, column=3)
+            t1 = threading.Thread(target=self.explore, args=(dir_name, ))
+            t1.start()
+            t2 = threading.Thread(target=self.progress, args=(current_row, t1)).start()
+
         except Exception as e:
             ft_error(e)
 
@@ -165,7 +125,7 @@ class PageOne(Frame):
         file_download_button.grid(row=self.current_row, column=2)
 
         if file_name in self.dirs or file_name.split('/')[-1] in self.dirs:
-            save_callback_with_name2 = functools.partial(self.explore_dir, file_name)
+            save_callback_with_name2 = functools.partial(self.explore_dir, file_name, self.current_row)
             explore_dir_button = Button(self, text='Explore Dir', command=save_callback_with_name2)
             self.file_widgets.append(explore_dir_button)
             explore_dir_button.grid(row=self.current_row, column=3)
