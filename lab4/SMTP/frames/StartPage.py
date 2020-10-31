@@ -32,6 +32,18 @@ class StartPage(Frame):
         send_button = Button(self, text='Send', command=send_callback)
         send_button.grid(column=1)
 
+    def progress(self, column, thread):
+        progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
+        progressbar.grid(column=column)
+        progressbar.config(maximum=100, value=0)
+
+        progressbar.start()
+        while thread.is_alive():
+            self.master.update_idletasks()
+            time.sleep(0.05)
+        progressbar.stop()
+        progressbar.destroy()
+
     def send(self, e1, subj, msg):
         try:
             to = str(e1.get())
@@ -40,20 +52,9 @@ class StartPage(Frame):
             print(subject, message)
             to = "dariavvoroncova@gmail.com"
 
-            progressbar = Progressbar(self, orient='horizontal', length=200, mode='indeterminate')
-            progressbar.grid(column=1)
-            progressbar.config(maximum=100, value=0)
-
-            load_thread = threading.Thread(target=send_msg, args=(to, subject, message))
-            load_thread.start()
-
-            progressbar.start(interval=10)
-            while load_thread.is_alive():   # NEED fix
-                self.master.update_idletasks()
-                time.sleep(0.05)
-
-            progressbar.stop()
-            progressbar.destroy()
+            t1 = threading.Thread(target=send_msg, args=(to, subject, message))
+            t1.start()
+            t_progr = threading.Thread(target=self.progress, args=(1, t1)).start()
             ft_done(f"successfully sent email to {to}")
 
         except Exception as e:
