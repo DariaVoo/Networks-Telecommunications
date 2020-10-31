@@ -9,7 +9,7 @@ class SMTPApp(Tk):
         self.async_loop = async_loop
         self._frame = None
         self.geometry("900x500")
-        self.title("Lab5. HTTP client")
+        self.title("Lab6. SMTP client")
         self.switch_frame(StartPage)
 
     def switch_frame(self, frame_class):

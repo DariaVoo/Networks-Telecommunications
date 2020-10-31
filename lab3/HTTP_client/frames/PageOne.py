@@ -42,10 +42,6 @@ class PageOne(Frame):
             text.grid(row=2)
             self.text_frame = text
 
-            # print(r.text[:200])
-            # Label(self, text=self.html).grid(row=2, column=1)
-            # text_frame.insert(INSERT, "Hello.....")
-            # self.text_frame.insert(tkinter.END, self.html)
         except ConnectionError:
             ft_error("Connection Error! There is something wrong with the address")
         except Exception as e:
@@ -58,12 +54,12 @@ class PageOne(Frame):
             self.text_frame.destroy()
         self.master.switch_frame(StartPage)
 
-    def progress_bar(self, fun):
+    def progress_bar(self, fun, args: tuple):
         progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
-        progressbar.grid(row=2, column=2)
+        progressbar.grid(row=2)
         progressbar.config(maximum=100, value=0)
 
-        save_thread = threading.Thread(target=fun)
+        save_thread = threading.Thread(target=fun, args=args)
 
         save_thread.start()
 

@@ -4,7 +4,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 
-from SMTP.utils.ft_done import ft_done
 from not_send import PAAAS
 
 
@@ -37,4 +36,3 @@ def send_msg(to, subject, message):
     server.quit()
 
     print(f"successfully sent email to {msg['To']}")
-    ft_done(f"successfully sent email to {msg['To']}")
