@@ -29,8 +29,12 @@ class PageOne(Frame):
                command=self.disconnect).grid(row=1, column=2)
 
         try:
-            if ADDRESS[:5] != 'http':
+            print(ADDRESS[:4])
+            if ADDRESS[:4] != 'http':
                 r = requests.get('https://' + ADDRESS)
+            else:
+                r = requests.get(ADDRESS)
+
             self.html = str(r.text)
 
             text = Text()
@@ -43,8 +47,12 @@ class PageOne(Frame):
             # Label(self, text=self.html).grid(row=2, column=1)
             # text_frame.insert(INSERT, "Hello.....")
             # self.text_frame.insert(tkinter.END, self.html)
+        except ConnectionError:
+            ft_error("Connection Error! There is something wrong with the address")
         except Exception as e:
             ft_error(e)
+            print("Error ", ADDRESS)
+
 
     def disconnect(self):
         from HTTP_client.frames.StartPage import StartPage
