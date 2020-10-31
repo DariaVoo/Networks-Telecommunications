@@ -25,13 +25,15 @@ class PageOne(Frame):
         Label(self, text=info).grid(row=1, column=1)
         Button(self, text="Disconnect",
                command=self.disconnect).grid(row=1, column=2)
-        Button(self, text="Upload to server",
-               command=self.load_to_serv).grid(row=2, column=1)
+
         try:
             self.client = Client(FTP_MIRROR)
 
             self.progress_bar(self.client.connect)
             ft_done("login is successful")
+
+            Button(self, text="Upload to server",
+                   command=self.load_to_serv).grid(row=2, column=1)
 
             # self.progress_bar(self.client.connect)
             self.dirs = self.client.get_name_dirs()
@@ -92,7 +94,6 @@ class PageOne(Frame):
             ft_error(e)
 
     def progress_bar(self, fun):
-        """ TODO: Надо доделать"""
         progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
         progressbar.grid(row=2, column=2)
         progressbar.config(maximum=100, value=0)
