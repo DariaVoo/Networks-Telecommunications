@@ -1,15 +1,15 @@
 from tkinter import Tk
 
-from IMAP.frames.StartPage import StartPage
+from POP3.frames.StartPage import StartPage
 
 
-class IMAPApp(Tk):
+class POP3App(Tk):
     def __init__(self, async_loop):
         Tk.__init__(self)
         self.async_loop = async_loop
         self._frame = None
         self.geometry("500x500")
-        self.title("Lab8. IMAP client")
+        self.title("Lab8. POP3 client")
         self.switch_frame(StartPage)
 
     def switch_frame(self, frame_class):

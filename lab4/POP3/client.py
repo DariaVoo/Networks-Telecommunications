@@ -89,7 +89,6 @@ class Client:
             text = unicode(msg.get_payload(decode=True), msg.get_content_charset(), "ignore").encode('utf8', 'replace')
             return text.strip()
 
-
     def load(self, file_name: str):  # загрузить на сервак
         """ Загрузка данных на сервер """
         with open(file_name, 'rb') as fobj:
