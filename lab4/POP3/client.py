@@ -1,9 +1,4 @@
-import base64
-import imaplib
 import poplib
-import pprint
-import quopri
-import string
 from email.header import decode_header
 from email.parser import Parser
 from email.message import Message

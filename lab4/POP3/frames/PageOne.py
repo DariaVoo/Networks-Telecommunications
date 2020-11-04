@@ -4,6 +4,10 @@ import time
 from tkinter import filedialog, Frame, Label, Button, Menu, messagebox
 from tkinter.ttk import Progressbar
 
+from POP3.client import Client
+from SMTP.utils.ft_done import ft_done
+from SMTP.utils.ft_error import ft_error
+
 
 class PageOne(Frame):
     def __init__(self, master, async_loop):
@@ -12,18 +16,23 @@ class PageOne(Frame):
         Frame.configure(self)
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.file_widgets = []
+        self.msg_widgets = []
         self.current_row = 3
         self.client = None
+        self.btn_back = None
+        self.msgs: list = None
+        self.labels = []
 
-        from FTP_client.frames.StartPage import FTP_MIRROR
-        info = "MIRROR: " + str(FTP_MIRROR)
-        self.info_label = Label(self, text=info).grid(row=1, column=1)
-        self.btn_disconnect = Button(self, text="Disconnect",
-               command=self.disconnect).grid(row=1, column=2)
+        from POP3.frames.StartPage import POP3_ADDRESS
+        info = "Email Address: " + str(POP3_ADDRESS)
+        self.info_label = Label(self, text=info).grid(row=1, column=2)
+        self.btn_disconnect = Button(self, text="Log Out",
+               command=self.disconnect).grid(row=1, column=1)
+        self.add_label("From", 2, 1)
+        self.add_label("To", 2, 2)
+        self.add_label("Subject", 2, 3)
 
-        from FTP_client.frames.StartPage import FTP_MIRROR
-        self.client = Client(FTP_MIRROR)
+        self.client = Client(POP3_ADDRESS)
 
         t1 = threading.Thread(target=self.client.connect)
         t1.start()
@@ -34,11 +43,17 @@ class PageOne(Frame):
         t2.start()
         t_progr = threading.Thread(target=self.progress, args=(1, t2)).start()
 
+    def add_label(self, text, row, column):
+        label = Label(self, text=text)
+        label.configure(font=("Times New Roman", 12, "bold"))
+        label.grid(row=row, column=column)
+        self.labels.append(label)
+
     def connect(self):
         try:
-            self.dirs = self.client.get_name_dirs()
-            files = self.client.get_name_files()
-            self.add_file_rows_to_root(files)
+
+            self.msgs = self.client.get_msgs()
+            self.add_msg_rows_to_root(self.msgs)
 
         except ConnectionRefusedError:
             raise ConnectionRefusedError
@@ -48,32 +63,84 @@ class PageOne(Frame):
         except Exception as e:
             ft_error(e)
 
-    def disconnect(self):
-        if self.client:
-            try:
-                self.client.close()
-            except Exception as e:
-                print(e)
-            finally:
-                self.remove_file_rows_from_root()
-        from FTP_client.frames.StartPage import StartPage
-        self.master.switch_frame(StartPage)
+    def get_email_content(self, msg, current_row):
+        email_from, email_to, email_subject, email_content = msg
+        current_msg = []
 
-    def save(self, file_name, row):
-        """ Скачать что-то с сервера """
-        try:
-            path: str = filedialog.askdirectory(initialdir="/home/snorcros", title="Select a dir for download", mustexist=1)
+        self.remove_msg_rows_from_root()
+        self.remove_widgets(self.labels)
 
-            if path:
-                t1 = threading.Thread(target=self.client.save, args=(file_name, path))
-                t1.start()
-                t_progr = threading.Thread(target=self.progress, args=(row, t1)).start()
-                ft_done("File " + file_name + " was download to " + path)
-        except ConnectionResetError:
-            ft_error("Server died :c")
-            self.disconnect()
-        except Exception as e:
-            ft_error(e)
+        self.add_label("From", 2, 1)
+        self.add_label("To", 3, 1)
+        self.add_label("Subject", 4, 1)
+        self.add_label("Content", 5, 1)
+
+        label_from = Label(self, text=email_from)
+        label_to = Label(self, text=email_to)
+        label_subj = Label(self, text=email_subject)
+        label_content = Label(self, text=email_content)
+
+        current_msg.append(label_from)
+        current_msg.append(label_to)
+        current_msg.append(label_subj)
+        current_msg.append(label_content)
+
+        row = 2
+        for label in current_msg:
+            label.grid(row=row, column=2)
+            row += 1
+
+        back_callback = functools.partial(self.back, current_msg)
+        button_back = Button(self, text="Back", command=back_callback)
+        button_back.grid(row=1, column=3)
+        self.btn_back = button_back
+
+    def back(self, widgets):
+        self.remove_widgets(widgets)
+        self.remove_widgets(self.labels)
+
+        self.add_label("From", 2, 1)
+        self.add_label("To", 2, 2)
+        self.add_label("Subject", 2, 3)
+
+        self.add_msg_rows_to_root(self.msgs)
+        self.btn_back.grid_remove()
+
+    def remove_widgets(self, widgets):
+        for widget in widgets:
+            widget.grid_remove()
+
+    def add_msg_to_root(self, msg: tuple):
+        email_from, email_to, email_subject, email_content = msg
+
+        label_from = Label(self, text=email_from)
+        label_to = Label(self, text=email_to)
+        label_subj = Label(self, text=email_subject)
+
+        save_callback_with_name = functools.partial(self.get_email_content, msg, self.current_row)
+        button_get_content = Button(self, text='Read msg', command=save_callback_with_name)
+        self.msg_widgets.append(button_get_content)
+
+        # grid
+        label_from.grid(row=self.current_row, column=1)
+        label_to.grid(row=self.current_row, column=2)
+        label_subj.grid(row=self.current_row, column=3)
+        button_get_content.grid(row=self.current_row, column=4)
+
+        self.msg_widgets.append(label_from)
+        self.msg_widgets.append(label_to)
+        self.msg_widgets.append(label_subj)
+
+        self.current_row += 1
+
+    def add_msg_rows_to_root(self, msgs: list):
+        for message in msgs:
+            self.add_msg_to_root(message)
+
+    def remove_msg_rows_from_root(self):
+        self.remove_widgets(self.msg_widgets)
+        self.msg_widgets.clear()
+        self.current_row = 3
 
     def progress(self, row, thread):
         progressbar = Progressbar(self, orient='horizontal', length=150, mode='indeterminate')
@@ -87,54 +154,17 @@ class PageOne(Frame):
         progressbar.stop()
         progressbar.destroy()
 
-    def explore(self, dir_name):
-        self.dirs = self.client.get_name_dirs(dir_name=dir_name)
-        files = self.client.get_name_files()
+    def disconnect(self):
+        if self.client:
+            try:
+                self.client.close()
+            except Exception as e:
+                print(e)
+            finally:
+                self.remove_msg_rows_from_root()
 
-        self.remove_file_rows_from_root()
-        self.add_file_rows_to_root(files)
-        Button(self, text="Back",
-               command=lambda: self.explore_dir('../', 2)).grid(row=2, column=3)
-
-    def explore_dir(self, dir_name, current_row):
-        try:
-            t1 = threading.Thread(target=self.explore, args=(dir_name, ))
-            t1.start()
-            t2 = threading.Thread(target=self.progress, args=(current_row, t1)).start()
-
-        except Exception as e:
-            ft_error(e)
-
-    def add_file_rows_to_root(self, file_names: list):
-        for file_name in file_names:
-            self.add_file_to_root(file_name)
-
-    def add_file_to_root(self, file_name: list):
-        file_name_label = Label(self, text=file_name)
-
-        save_callback_with_name = functools.partial(self.save, file_name, self.current_row)
-        file_download_button = Button(self, text='Download', command=save_callback_with_name)
-        self.file_widgets.append(file_download_button)
-
-        # grid
-        file_name_label.grid(row=self.current_row, column=1)
-        file_download_button.grid(row=self.current_row, column=2)
-
-        if file_name in self.dirs or file_name.split('/')[-1] in self.dirs:
-            save_callback_with_name2 = functools.partial(self.explore_dir, file_name, self.current_row)
-            explore_dir_button = Button(self, text='Explore Dir', command=save_callback_with_name2)
-            self.file_widgets.append(explore_dir_button)
-            explore_dir_button.grid(row=self.current_row, column=3)
-
-        self.file_widgets.append(file_name_label)
-
-        self.current_row += 1
-
-    def remove_file_rows_from_root(self):
-        for widget in self.file_widgets:
-            widget.grid_remove()
-        self.file_widgets.clear()
-        self.current_row = 3
+        from POP3.frames.StartPage import StartPage
+        self.master.switch_frame(StartPage)
 
     def on_closing(self):
         """" При закрытии приложения отключаемся от сервера """
