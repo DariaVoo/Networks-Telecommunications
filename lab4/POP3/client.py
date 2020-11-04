@@ -50,17 +50,19 @@ class Client:
             msg = Parser().parsestr(msg_content)
 
             # get email from, to, subject attribute value.
+            email_date = decode_field(msg.get('Date'))
             email_from = decode_field(msg.get('From'))
             email_to = decode_field(msg.get('To'))
             email_subject = decode_field(msg.get('Subject'))
             email_content = self.get_msg_content(msg)
 
+            print('Date ' + email_date)
             print('From ' + email_from)
             print('To ' + email_to)
             print('Subject ', email_subject)
             print('Content: ', email_content)
             print()
-            self.msgs.append((email_from, email_to, email_subject, email_content))
+            self.msgs.append((email_date,email_from, email_to, email_subject, email_content))
 
         return self.msgs
 

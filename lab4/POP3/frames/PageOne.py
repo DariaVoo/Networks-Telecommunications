@@ -28,9 +28,10 @@ class PageOne(Frame):
         self.info_label = Label(self, text=info).grid(row=1, column=2)
         self.btn_disconnect = Button(self, text="Log Out",
                command=self.disconnect).grid(row=1, column=1)
-        self.add_label("From", 2, 1)
-        self.add_label("To", 2, 2)
-        self.add_label("Subject", 2, 3)
+        self.add_label("Date", 2, 1)
+        self.add_label("From", 2, 2)
+        self.add_label("To", 2, 3)
+        self.add_label("Subject", 2, 4)
 
         self.client = Client(POP3_ADDRESS)
 
@@ -64,22 +65,25 @@ class PageOne(Frame):
             ft_error(e)
 
     def get_email_content(self, msg, current_row):
-        email_from, email_to, email_subject, email_content = msg
+        email_date, email_from, email_to, email_subject, email_content = msg
         current_msg = []
 
         self.remove_msg_rows_from_root()
         self.remove_widgets(self.labels)
 
-        self.add_label("From", 2, 1)
-        self.add_label("To", 3, 1)
-        self.add_label("Subject", 4, 1)
-        self.add_label("Content", 5, 1)
+        self.add_label("Date", 2, 1)
+        self.add_label("From", 3, 1)
+        self.add_label("To", 4, 1)
+        self.add_label("Subject", 5, 1)
+        self.add_label("Content", 6, 1)
 
+        label_date = Label(self, text=email_date)
         label_from = Label(self, text=email_from)
         label_to = Label(self, text=email_to)
         label_subj = Label(self, text=email_subject)
         label_content = Label(self, text=email_content)
 
+        current_msg.append(label_date)
         current_msg.append(label_from)
         current_msg.append(label_to)
         current_msg.append(label_subj)
@@ -99,9 +103,10 @@ class PageOne(Frame):
         self.remove_widgets(widgets)
         self.remove_widgets(self.labels)
 
-        self.add_label("From", 2, 1)
-        self.add_label("To", 2, 2)
-        self.add_label("Subject", 2, 3)
+        self.add_label("Date", 2, 1)
+        self.add_label("From", 2, 2)
+        self.add_label("To", 2, 3)
+        self.add_label("Subject", 2, 4)
 
         self.add_msg_rows_to_root(self.msgs)
         self.btn_back.grid_remove()
@@ -111,8 +116,9 @@ class PageOne(Frame):
             widget.grid_remove()
 
     def add_msg_to_root(self, msg: tuple):
-        email_from, email_to, email_subject, email_content = msg
+        email_date, email_from, email_to, email_subject, email_content = msg
 
+        label_date = Label(self, text=email_date)
         label_from = Label(self, text=email_from)
         label_to = Label(self, text=email_to)
         label_subj = Label(self, text=email_subject)
@@ -122,11 +128,13 @@ class PageOne(Frame):
         self.msg_widgets.append(button_get_content)
 
         # grid
-        label_from.grid(row=self.current_row, column=1)
-        label_to.grid(row=self.current_row, column=2)
-        label_subj.grid(row=self.current_row, column=3)
-        button_get_content.grid(row=self.current_row, column=4)
+        label_date.grid(row=self.current_row, column=1)
+        label_from.grid(row=self.current_row, column=2)
+        label_to.grid(row=self.current_row, column=3)
+        label_subj.grid(row=self.current_row, column=4)
+        button_get_content.grid(row=self.current_row, column=5)
 
+        self.msg_widgets.append(label_date)
         self.msg_widgets.append(label_from)
         self.msg_widgets.append(label_to)
         self.msg_widgets.append(label_subj)
