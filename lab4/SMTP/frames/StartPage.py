@@ -50,12 +50,12 @@ class StartPage(Frame):
             subject = subj.get("1.0", END)
             message = msg.get("1.0", END)
             print(subject, message)
-            to = "dariavvoroncova@gmail.com"
+            # to = "dariavvoroncova@gmail.com"
 
             t1 = threading.Thread(target=send_msg, args=(to, subject, message))
             t1.start()
             t_progr = threading.Thread(target=self.progress, args=(1, t1)).start()
-            ft_done(f"successfully sent email to {to}")
+
 
         except Exception as e:
             ft_error(e)
