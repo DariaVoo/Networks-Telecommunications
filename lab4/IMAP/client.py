@@ -6,10 +6,19 @@ import quopri
 import string
 from email.header import decode_header
 from email.parser import Parser
+from email.message import Message
 
 from pip._vendor.pyparsing import unicode
 
 from not_send import PAAAS
+
+
+def decode_field(field: str):
+    """ Парсинг полей сообщения"""
+    bytes_subj, encoding = decode_header(field)[0]
+    if encoding is not None:
+        field = bytes_subj.decode(encoding)
+    return field
 
 
 class Client:
@@ -20,16 +29,14 @@ class Client:
         pop3_server_welcome_msg = self.server.getwelcome().decode('utf-8')
         print(pop3_server_welcome_msg)
         self.active = False
+        self.msgs = []
 
     def connect(self):
         self.server.user(self.email)
         self.server.pass_(PAAAS)
         self.active = True
 
-    def get_msgs(self, rfc822=None):
-        # parse the email content to a message object.
-        # msg = Parser().parsestr(msg_content)
-
+    def get_msgs(self):
         # stat() function return email count and occupied disk size
         print('Messages: %s. Size: %s' % self.server.stat())
         # list() function return all email list
@@ -37,32 +44,34 @@ class Client:
         print(mails)
 
         # retrieve the newest email index number
-        index = len(mails)
-        index = len(mails) - 6
-        # server.retr function can get the contents of the email with index variable value index number.
-        resp, lines, octets = self.server.retr(index)
+        for index in range(1, len(mails) + 1):
+            # server.retr function can get the contents of the email with index variable value index number.
+            resp, lines, octets = self.server.retr(index)
 
-        # lines stores each line of the original text of the message
-        # so that you can get the original text of the entire message use the join function and lines variable.
-        msg_content = b'\r\n'.join(lines).decode('utf-8')
-        # now parse out the email object.
-        msg = Parser().parsestr(msg_content)
+            # lines stores each line of the original text of the message
+            # so that you can get the original text of the entire message use the join function and lines variable.
+            msg_content = b'\r\n'.join(lines).decode('utf-8')
+            # now parse out the email object.
+            msg = Parser().parsestr(msg_content)
 
-        # get email from, to, subject attribute value.
-        email_from = msg.get('From')
-        email_to = msg.get('To')
-        email_subject = msg.get('Subject')
+            # get email from, to, subject attribute value.
+            email_from = decode_field(msg.get('From'))
+            email_to = decode_field(msg.get('To'))
+            email_subject = decode_field(msg.get('Subject'))
+            email_content = self.get_msg_content(msg)
+
+            print('From ' + email_from)
+            print('To ' + email_to)
+            print('Subject ', email_subject)
+            print('Content: ', email_content)
+            print()
+            self.msgs.append((email_from, email_to, email_subject, email_content))
+
+        return self.msgs
+
+    def get_msg_content(self, msg: Message):
+        """ Парсинг содержания сообщения"""
         email_content = msg.get_payload()
-        print('From ' + email_from)
-        print('To ' + email_to)
-
-        # parse subj
-        bytes_subj, encoding = decode_header(email_subject)[0]
-        if encoding is not None:
-            email_subject = bytes_subj.decode(encoding)
-        print('Subject ', email_subject)
-
-        print('Content: ', end='')
         if msg.is_multipart():
             for part in email_content:
                 # print('Content', m.get_papayload())
@@ -70,15 +79,16 @@ class Client:
 
                 if part.get_content_type() == 'text/plain':
                     text = unicode(part.get_payload(decode=True), str(charset), "ignore").encode('utf8', 'replace')
-                    print(text.strip())
+                    return text.strip()
 
                 if part.get_content_type() == 'text/html':
                     html = unicode(part.get_payload(decode=True), str(charset), "ignore").encode('utf8', 'replace')
-                    print(html.strip())
+                    return html.strip()
 
         else:
             text = unicode(msg.get_payload(decode=True), msg.get_content_charset(), "ignore").encode('utf8', 'replace')
-            print(text)
+            return text.strip()
+
 
     def load(self, file_name: str):  # загрузить на сервак
         """ Загрузка данных на сервер """
@@ -117,6 +127,7 @@ class Client:
 if __name__ == "__main__":
     cli = Client("dariavvoroncova@gmail.com")
     cli.connect()
-    cli.get_msgs()
+    ms = cli.get_msgs()
+    print(ms)
     cli.close()
 
