@@ -8,7 +8,7 @@ class POP3App(Tk):
         Tk.__init__(self)
         self.async_loop = async_loop
         self._frame = None
-        self.geometry("1100x500")
+        self.geometry("1500x500")
         self.title("Lab8. POP3 client")
         self.switch_frame(StartPage)
 

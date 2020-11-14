@@ -9,7 +9,7 @@ POP3_ADDRESS: str = "dariavvoroncova@gmail.com"
 def get_params(e1, master):
     try:
         global POP3_ADDRESS
-        # POP3_ADDRESS = str(e1.get())
+        POP3_ADDRESS = str(e1.get())
         print(POP3_ADDRESS)
         master.switch_frame(PageOne)
     except ConnectionRefusedError:
